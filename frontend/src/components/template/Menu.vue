@@ -2,7 +2,8 @@
 
     <aside class="menu">
         <nav>
-            <a href="/">Pessoa</a>
+            <a href="/">Home</a>
+            <a href="/pessoa">Pessoa</a>
             <a href="/registro">Registro</a>
         </nav>
     </aside>

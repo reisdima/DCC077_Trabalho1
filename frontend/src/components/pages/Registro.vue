@@ -11,11 +11,14 @@
                     :readonly="mode === 'remove'"
                     placeholder="Informe o Id da Pessoa..."
                 />
+                <b-form-invalid-feedback :state="validation.pessoa">
+                    O Id informado não é válido.
+                </b-form-invalid-feedback>
             </b-form-group>
             <b-form-group label="Data:" label-for="register-date">
                 <b-form-input
                     id="register-date"
-                    type="text"
+                    type="date"
                     v-model="register.data"
                     required
                     :readonly="mode === 'remove'"
@@ -34,6 +37,9 @@
                     :readonly="mode === 'remove'"
                     placeholder="Informe o Id do Posto..."
                 />
+                <b-form-invalid-feedback :state="validation.posto">
+                    O Id informado não é válido.
+                </b-form-invalid-feedback>
             </b-form-group>
             <b-form-group label="Descrição:" label-for="register-description">
                 <b-form-input
@@ -75,132 +81,115 @@
 </template>
 
 <script>
-import { baseApiUrl, showError } from '@/global'
-import axios from 'axios'
+import { baseApiUrl, showError } from "@/global";
+import axios from "axios";
 
 export default {
-    name: 'Home',
+    name: "Home",
     data: function() {
         return {
-            mode: 'save',
-            register: {},
-            registers: [{
-                "_id": "Teste",
-                "pessoa._id": "Teste",
-                "data": "Teste",
-                "posto._id": "Teste",
-                "descricao": "Teste"
-            }],
+            mode: "save",
+            validation: {
+                pessoa: true,
+                posto: true
+            },
+            register: {
+                // _id: "Teste",
+                // pessoa: "sKAp5ncBQ5Ih-X2D_usH",
+                // data: "2021-02-08",
+                // posto: "sKAq5ncBQ5Ih-X2DBu1n",
+                // descricao: "Teste",
+            },
+            registers: [
+                {
+                    _id: "Teste",
+                    "pessoa._id": "Teste",
+                    data: "Teste",
+                    "posto._id": "Teste",
+                    descricao: "Teste",
+                },
+            ],
             fields: [
-                { key: '_id', label: 'Código', sortable: true },
-                { key: 'pessoa._id', label: 'Nome da Pessoa', sortable: true },
-                { key: 'data', label: 'Data', sortable: true },
-                { key: 'posto._id', label: 'Nome do Posto', sortable: true },
-                { key: 'descricao', label: 'Descrição', sortable: true },
+                { key: "_id", label: "Código", sortable: true },
+                { key: "pessoa.nome", label: "Nome da Pessoa", sortable: true },
+                { key: "data", label: "Data", sortable: true },
+                { key: "posto.nome", label: "Nome do Posto", sortable: true },
+                { key: "descricao", label: "Descrição", sortable: true },
                 // { key: 'actions', label: 'Ações' }
-            ]
-        }
+            ],
+        };
     },
     methods: {
         loadRegisters() {
-            const url = `${baseApiUrl}/covid/_search`
+            const url = `${baseApiUrl}/covid/_search`;
             let body = {
                 query: {
                     term: {
-                        "tipo.keyword": "registro"
-                    }
-                }
+                        "tipo.keyword": "registro",
+                    },
+                },
             };
-            axios.post(url, body).then(res => {
-                if(res.data.hits.total.value > 0) {
-                    this.registers = res.data.hits.hits.map(hit => {
-                        return {...hit._source, "_id":hit._id }
+            axios.post(url, body).then((res) => {
+                if (res.data.hits.total.value > 0) {
+                    this.registers = res.data.hits.hits.map((hit) => {
+                        return { ...hit._source, _id: hit._id };
                     });
                 }
-                console.log(this.registers)
+                console.log(this.registers);
 
                 // this.categories = res.data
                 // this.categories = res.data.map(category => {
                 //     return { ...category, value: category.id, text: category.path }
                 // })
-            })
+            });
         },
         reset() {
-            this.mode = 'save'
-            this.register = {}
-            this.loadRegisters()
+            this.mode = "save";
+            this.register = {};
+            this.loadRegisters();
         },
         async save() {
-            // const method = this.category.id ? '_update' : '_create'
-            // const id = this.category.id ? `/${this.category.id}` : ''
-            console.log("Registro:");
-            console.log(this.register);
-            const method = '_create';
+            // console.log("Registro:");
+            // console.log(this.register);
             let pessoa = null;
             let posto = null;
-            pessoa = await axios.post(`${baseApiUrl}/covid/_get`, {_id: this.register.pessoa})
+            pessoa = await axios
+                .post(`${baseApiUrl}/covid/_get`, { _id: this.register.pessoa })
+                .then((res) => res.data)
+                .catch((_) => null);
+            posto = await axios
+                .post(`${baseApiUrl}/covid/_get`, { _id: this.register.posto })
+                .then((res) => res.data)
+                .catch((_) => null);
+            if (!pessoa) {
+                this.validation.pessoa = false;
+                return;
+            }
+            else if (!posto) {
+                this.validation.posto = false;
+                return;
+            }
+            this.validation.pessoa = true;
+            this.validation.posto = true;
+            let body = {
+                tipo: "registro",
+                pessoa: pessoa._source,
+                posto: posto._source,
+                data: this.register.data,
+                descricao: this.register.descricao,
+            };
+            let newRegister = axios
+                .post(`${baseApiUrl}/covid/_create`, body)
                 .then(res => {
-                    this.$toasted.global.defaultSuccess()
-                    // this.reset()
-                    this.teste();
-                    return JSON.parse(res);
+                    this.reset();
                 })
-                .catch(_ => null)
-            posto = await axios.post(`${baseApiUrl}/covid/_get`, {_id: this.register.posto})
-                .then(res => {
-                    this.$toasted.global.defaultSuccess()
-                    this.reset()
-                    return JSON.parse(res);
-                })
-                .catch(_ => null)
-            console.log(pessoa);
-            console.log(posto);
-            // let body = {
-            //     tipo: "registro",
-            //     pessoa: pessoas[indicePessoaRandom],
-            //     posto: postos[indicePostoRandom],
-            //     data: this.register.data,
-            //     descricao: this.registers.descricao
-            // }
-            // axios.post(`${baseApiUrl}/covid/${method}`, this.register)
-            //     .then(() => {
-            //         this.$toasted.global.defaultSuccess()
-            //         this.reset()
-            //     })
-            //     .catch(showError)
+                .catch(showError);
         },
-        getPessoa(id) {
-            // let pessoa = null;
-            // pessoa = await axios.post(`${baseApiUrl}/covid/_get`, {_id: id})
-            //     .then(res => {
-            //         this.$toasted.global.defaultSuccess()
-            //         this.reset()
-            //         return JSON.parte(res);
-            //     })
-            //     .catch(_ => null)
-            
-        },
-        teste(){
-            console.log("teste aqui")
-        }
-        // remove() {
-        //     // const id = this.category.id
-        //     // axios.delete(`${baseApiUrl}/categories/${id}`)
-        //     //     .then(() => {
-        //     //         this.$toasted.global.defaultSuccess()
-        //     //         this.reset()
-        //     //     })
-        //     //     .catch(showError)
-        // },
-        // loadCategory(category, mode = 'save') {
-        //     // this.mode = mode
-        //     // this.category = { ...category }
-        // }
     },
     mounted() {
-        this.loadRegisters()
+        this.loadRegisters();
     }
-}
+};
 </script>
 
 <style></style>

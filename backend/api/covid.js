@@ -17,13 +17,17 @@ module.exports = app => {
     }
 
     const save = (req, res) => {
+        console.log("Save teste")
+        console.log(req.body)
         app.elasticsearch
-            .get({
+            .index({
                 index: 'ministerio_saude',
                 type: 'covid',
-                id: req.body
+                body: req.body
             })
-            .then(object => { res.json(object) })
+            .then(object => {
+                res.json(object)
+            })
             .catch(err => res.status(500).send(err))
     }
 
@@ -45,12 +49,52 @@ module.exports = app => {
                 type: 'covid',
                 body: req.body
             })
-            .then(result => { 
-                console.log(result)
+            .then(result => {
                 res.json(result)
-             })
+            })
             .catch(err => res.status(500).send(err))
     }
 
-    return { getById, search, deleteById, save }
+    async function getStatistics(req, res) {
+        try {
+            const descricoes = ["examinado", "diagnosticado", "internado", "obito", "recuperado"];
+            let statistics = {};
+            for (let i = 0; i < descricoes.length; i++) {
+                const descricao = descricoes[i];
+                let body = {
+                    "query": {
+                        "bool": {
+                            "must": [
+                                {
+                                    "term": {
+                                        "tipo.keyword": "registro"
+                                    }
+                                },
+                                {
+                                    "term": {
+                                        "descricao.keyword": descricao
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "size": 0
+                }
+                let result = await app.elasticsearch
+                .search({
+                    index: 'ministerio_saude',
+                    type: 'covid',
+                    body: body
+                })
+                .then(data => data)
+                .catch(err => res.status(500).send(err))
+                statistics[descricao] = result.hits.total.value;
+            }
+            res.json(statistics)
+        } catch (error) {
+
+        }
+    }
+
+    return { getById, search, deleteById, save, getStatistics }
 }

@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 
 import Pessoa from '@/components/pages/Pessoa'
 import Registro from '@/components/pages/Registro'
+import Home from '@/components/pages/Home'
 // import AdminPages from '@/components/admin/AdminPages'
 // import ArticlesByCategory from '@/components/article/ArticlesByCategory'
 // import ArticleById from '@/components/article/ArticleById'
@@ -14,32 +15,17 @@ Vue.use(VueRouter)
 
 const routes = [{
     name: 'pessoa',
-    path: '/',
+    path: '/pessoa',
     component: Pessoa
 }, {
     name: 'registro',
     path: '/registro',
     component: Registro
-}
-// , {
-//     name: 'adminPages',
-//     path: '/admin',
-//     component: AdminPages,
-//     meta: { requiresAdmin: true }
-// }, {
-//     name: 'articlesByCategory',
-//     path: '/categories/:id/articles',
-//     component: ArticlesByCategory
-// }, {
-//     name: 'articleById',
-//     path: '/articles/:id',
-//     component: ArticleById
-// }, {
-//     name: 'auth',
-//     path: '/auth',
-//     component: Auth
-// }
-]
+}, {
+    name: 'home',
+    path: '/',
+    component: Home
+}]
 
 const router = new VueRouter({
     mode: 'history',

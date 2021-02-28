@@ -9,5 +9,6 @@ module.exports = app => {
     app.post('/covid/_create', app.api.covid.save)
     app.post('/covid/_search', app.api.covid.search)
     app.post('/covid/_delete', app.api.covid.deleteById)
-
+    
+    app.post('/covid/statistics', app.api.covid.getStatistics)
 }
