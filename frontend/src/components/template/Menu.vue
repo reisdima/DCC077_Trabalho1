@@ -2,8 +2,8 @@
 
     <aside class="menu">
         <nav>
-            <a href="">Teste Link</a>
-            <a href="">Teste Link2</a>
+            <a href="/">Pessoa</a>
+            <a href="/registro">Registro</a>
         </nav>
     </aside>
 </template>
@@ -57,11 +57,17 @@ export default {
         flex-direction: column;
         flex-wrap: wrap;
     }
-
-    .menu a,
-    .menu a:hover {
-        color: #fff;
+    .menu a {
+        display: block;
         text-decoration: none;
+        color: #FFF;
+        font-weight: 300;
+        padding: 15px;
+    }
+    .menu a:hover {
+        text-decoration: none;
+        color: #FFF;
+        background: linear-gradient(135deg, #07a7e3 0%, #32dac3 100%);
     }
 
     .menu .tree-node.selected > .tree-content,

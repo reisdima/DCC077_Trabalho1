@@ -5,6 +5,7 @@
 			:hideToggle="!user"
 			:hideUserDropdown="!user" /> -->
 		<Menu />
+		<Content />
 		<!-- <Menu v-if="user" />
 		<Loading v-if="validatingToken" />
 		<Content v-else />
@@ -18,14 +19,14 @@ import axios from "axios"
 // import { mapState } from "vuex"
 import Header from "@/components/template/Header"
 import Menu from "@/components/template/Menu"
-// import Content from "@/components/template/Content"
+import Content from "@/components/template/Content"
 // import Footer from "@/components/template/Footer"
 // import Loading from "@/components/template/Loading"
 
 export default {
 	name: "App",
 	// components: { Header, Menu, Content, Footer, Loading },
-	components: { Header, Menu },
+	components: { Header, Menu, Content },
 	// computed: mapState(['isMenuVisible', 'user']),
 	data: function() {
 		return {
@@ -75,6 +76,7 @@ export default {
 
 	body {
 		margin: 0;
+		background-color: black;
 	}
 
 	#app {
@@ -84,7 +86,7 @@ export default {
 		height: 100vh;
 		display: grid;
 		grid-template-rows: 60px 1fr 40px;
-		grid-template-columns: 300px 1fr;
+		grid-template-columns: 200px 1fr;
 		grid-template-areas:
 			"header header"
 			"menu content"
