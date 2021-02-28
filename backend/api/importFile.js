@@ -6,7 +6,7 @@ module.exports = app => {
     const { existsOrError, notExistsOrError, equalsOrError } = app.api.validation
 
     const importRegistro = async (req, res) => {
-        const descricao = ["examinado", "diagnosticado", "internado", "óbito", "recuperado"];
+        const descricao = ["examinado", "diagnosticado", "internado", "obito", "recuperado"];
         app.elasticsearch
             .search({
                 index: 'ministerio_saude',
